@@ -31,3 +31,5 @@ Route::get('students/edit/{id}', [StudentController::class, 'editStudent'])->nam
 
 Route::delete('/students/delete/{id}', [StudentController::class, 'deleteStudent'])->name('delete-student');
 Route::post('/update-data/{id}', [StudentController::class, 'updateData'])->name('update-student');
+
+Route::get('/search', [StudentController::class, 'search']);

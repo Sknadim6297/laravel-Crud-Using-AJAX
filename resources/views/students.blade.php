@@ -49,6 +49,23 @@
             border-radius: 50%;
             object-fit: cover;
         }
+        #suggection {
+    display: none;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+.suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+}
+.suggestion-item:hover {
+    background-color: #f1f1f1;
+}
+
     </style>
 </head>
 <body>
@@ -57,10 +74,14 @@
     <div class="card p-4">
         <h2 class="text-center text-primary mb-4">Student Data</h2>
 
-        <div class="input-group mb-3">
+        <div class="input-group mb-3 position-relative">
             <input type="text" class="form-control" placeholder="Search student by name" id="search">
             <button class="btn btn-primary" id="search-btn">Search</button>
+            
+            <!-- Suggestion Box Directly Below Input -->
+            <div id="suggection" class="list-group position-absolute w-100" style="top: 100%; z-index: 1000;"></div>
         </div>
+        
         <div class="table-responsive">
             <table id="table" class="table table-hover table-bordered text-center">
                 <thead class="table-dark">
@@ -141,9 +162,6 @@ $(document).on('click', '.delete-btn', function () {
             $.ajax({
                 url: "/students/delete/" + studentId,
                 type: "DELETE",
-                data: {
-                    _token: "{{ csrf_token() }}" 
-                },
                 success: function (response) {
                     Swal.fire("Deleted!", response.res, "success");
                     location.reload();
@@ -155,6 +173,40 @@ $(document).on('click', '.delete-btn', function () {
         }
     });
 });
+
+$(document).ready(function(){
+    $('#search').keyup(function(){
+        let query = $(this).val();
+        if(query.length > 1){
+            $.ajax({
+                url: "/search",  // Laravel ka route
+                method: "GET",
+                data: { query: query },
+                success: function(response){
+                    let suggestionBox = $('#suggection'); // ID correct kiya
+                    suggestionBox.html(""); 
+                    if(response.length > 0){
+                        suggestionBox.show(); // Suggestions box ko show karna
+                        response.forEach(function(data){
+                            suggestionBox.append("<div class='suggestion-item p-2 border'>" + data.name + "</div>");
+                        });
+                    } else {
+                        suggestionBox.append('<p class="list-group-item list-group-item-action">No data found</p>');
+                    }
+                }
+            });
+        } else {
+            $('#suggection').hide(); 
+        }
+    });
+
+    // Click event for selecting suggestion
+    $(document).on("click", ".suggestion-item", function() {
+        $("#search").val($(this).text());
+        $("#suggection").hide();
+    });
+});
+
 
 
 </script>

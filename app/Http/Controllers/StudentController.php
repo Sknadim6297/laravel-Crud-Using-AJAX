@@ -69,4 +69,11 @@ class StudentController extends Controller
             'message' => 'Student updated successfully'
         ]);
     }
+
+    public function search(Request $request)
+    {
+        $query = $request->get('query');
+        $students = Student::where('name', 'LIKE', "%{$query}%")->get();
+        return response()->json($students);
+    }
 }
